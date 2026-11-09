@@ -106,6 +106,17 @@ theorem condSkeel_diagonal_mul (A : Matrix (Fin n) (Fin n) ℝ)
     field_simp [abs_ne_zero.mpr (hd k)]
   rw [condSkeel, condSkeel, key]
 
+/-- **(1.4)** If a backward error satisfies `|E| ≤ c_n u |L̂||Û|` (as in (1.3)) and
+`|L̂||Û| ≤ c'_n |A|`, then `|E| ≤ c''_n u |A|` with `c''_n = c_n c'_n`. -/
+theorem eq_1_4 (A E Lh Uh : Matrix (Fin n) (Fin n) ℝ) {c c' u : ℝ} (hc : 0 ≤ c) (hu : 0 ≤ u)
+    (hE : ∀ i j, |E i j| ≤ c * u * (Lh.map abs * Uh.map abs) i j)
+    (hLU : ∀ i j, (Lh.map abs * Uh.map abs) i j ≤ c' * |A i j|) :
+    ∀ i j, |E i j| ≤ (c * c') * u * |A i j| := by
+  intro i j
+  calc |E i j| ≤ c * u * (Lh.map abs * Uh.map abs) i j := hE i j
+    _ ≤ c * u * (c' * |A i j|) := mul_le_mul_of_nonneg_left (hLU i j) (mul_nonneg hc hu)
+    _ = (c * c') * u * |A i j| := by ring
+
 /-! ### The forward error bound (6.1) -/
 
 /-- **(6.1)**, general form: for the matrices of Theorem 3.2 and `u` small enough, combining (1.5)

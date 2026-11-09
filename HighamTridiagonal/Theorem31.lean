@@ -410,4 +410,54 @@ theorem theorem_3_1 (A : Matrix (Fin n) (Fin n) ℝ) (hA : IsUnit A.det) (hT : I
   · exact theorem_3_1_c hT h
   · exact theorem_3_1_d hA hT h
 
+/-! ### Versions for every LU factorization
+
+Since the LU factorization of a nonsingular matrix is unique (`IsLU.eq_recurrence`), the
+conclusions of Theorem 3.1 hold for *the* LU factors of `A`, i.e. for every LU factorization. -/
+
+lemma IsLU.unique {A L U L' U' : Matrix (Fin n) (Fin n) ℝ} (h : IsLU A L U) (h' : IsLU A L' U')
+    (hA : IsUnit A.det) (hT : IsTridiagonal A) : L = L' ∧ U = U' := by
+  obtain ⟨-, hL, hU⟩ := h.eq_recurrence hA hT
+  obtain ⟨-, hL', hU'⟩ := h'.eq_recurrence hA hT
+  exact ⟨hL.trans hL'.symm, hU.trans hU'.symm⟩
+
+/-- **Theorem 3.1**, "the LU factors" form: under the hypotheses of Theorem 3.1, `A` has an LU
+factorization, and every LU factorization `A = LU` satisfies `|L||U| = |LU|`. -/
+theorem theorem_3_1' (A : Matrix (Fin n) (Fin n) ℝ) (hA : IsUnit A.det) (hT : IsTridiagonal A)
+    (h : A.PosDef ∨ IsTotallyNonneg A ∨ IsMMatrix A ∨
+      ∃ D₁ D₂ B : Matrix (Fin n) (Fin n) ℝ, D₁.map abs = 1 ∧ D₂.map abs = 1 ∧ A = D₁ * B * D₂ ∧
+        (B.PosDef ∨ IsTotallyNonneg B ∨ IsMMatrix B)) :
+    (∃ L U, IsLU A L U) ∧ ∀ L U, IsLU A L U → L.map abs * U.map abs = (L * U).map abs := by
+  obtain ⟨L₀, U₀, hLU₀, habs₀⟩ := theorem_3_1 A hA hT h
+  refine ⟨⟨L₀, U₀, hLU₀⟩, fun L U hLU => ?_⟩
+  obtain ⟨rfl, rfl⟩ := hLU.unique hLU₀ hA hT
+  exact habs₀
+
+/-- **Theorem 3.1 (b)**, "the LU factors" form: if `A = LU`, then `A` is totally nonnegative iff
+`L ≥ 0` and `U ≥ 0`. -/
+theorem theorem_3_1_b_equiv' (A L U : Matrix (Fin n) (Fin n) ℝ) (hA : IsUnit A.det)
+    (hT : IsTridiagonal A) (hLU : IsLU A L U) :
+    IsTotallyNonneg A ↔ (∀ i j, 0 ≤ L i j) ∧ (∀ i j, 0 ≤ U i j) := by
+  rw [theorem_3_1_b_equiv A hA hT]
+  constructor
+  · rintro ⟨L', U', hLU', hL', hU'⟩
+    obtain ⟨rfl, rfl⟩ := hLU.unique hLU' hA hT
+    exact ⟨hL', hU'⟩
+  · rintro ⟨hL, hU⟩
+    exact ⟨L, U, hLU, hL, hU⟩
+
+/-- **Theorem 3.1 (c)**, "the LU factors" form: if `A = LU`, then `A` is an M-matrix iff `L`
+and `U` have positive diagonal elements and nonpositive off-diagonal elements. -/
+theorem theorem_3_1_c_equiv' (A L U : Matrix (Fin n) (Fin n) ℝ) (hA : IsUnit A.det)
+    (hT : IsTridiagonal A) (hLU : IsLU A L U) :
+    IsMMatrix A ↔ (∀ i, 0 < L i i) ∧ (∀ i, 0 < U i i) ∧
+      (∀ i j, i ≠ j → L i j ≤ 0) ∧ (∀ i j, i ≠ j → U i j ≤ 0) := by
+  rw [theorem_3_1_c_equiv A hA hT]
+  constructor
+  · rintro ⟨L', U', hLU', h⟩
+    obtain ⟨rfl, rfl⟩ := hLU.unique hLU' hA hT
+    exact h
+  · intro h
+    exact ⟨L, U, hLU, h⟩
+
 end Higham
