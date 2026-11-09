@@ -71,6 +71,10 @@ Run with `lake env lean scripts/check_axioms.lean`. Expected output for each the
 #print axioms Higham.abs_inv_lowerBidiag
 #print axioms Higham.abs_inv_mulVec_eq_comparison
 #print axioms Higham.colDD_analogue
+#print axioms Higham.theorem_4_2_sharp_n2
+#print axioms Higham.exA
+#print axioms Higham.exL
+#print axioms Higham.exU
 #print axioms Higham.bound_exact_of_type
 #print axioms Higham.rowDD_abs_supd_le_abs_piv
 #print axioms Higham.colDD_abs_sub_le_abs_piv

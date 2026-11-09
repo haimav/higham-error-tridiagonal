@@ -55,6 +55,7 @@ GitHub and in most Markdown viewers.
 | §3, after Thm 3.3 | `\|U⁻¹\| = M(U)⁻¹`, `\|L⁻¹\| = M(L)⁻¹` (comparison matrices) | `comparison` — [HighamTridiagonal/Algorithm38.lean:28](HighamTridiagonal/Algorithm38.lean#L28)<br>`abs_inv_factors_eq_inv_comparison` — [HighamTridiagonal/Algorithm38.lean:82](HighamTridiagonal/Algorithm38.lean#L82)<br>`abs_inv_upperBidiag` — [HighamTridiagonal/Algorithm38.lean:52](HighamTridiagonal/Algorithm38.lean#L52)<br>`abs_inv_lowerBidiag` — [HighamTridiagonal/Algorithm38.lean:68](HighamTridiagonal/Algorithm38.lean#L68) | |
 | §3, before (3.8) | If `\|A⁻¹\| = \|U⁻¹\|\|L⁻¹\|` then `\|A⁻¹\|y = M(U)⁻¹M(L)⁻¹y` | `abs_inv_mulVec_eq_comparison` — [HighamTridiagonal/Algorithm38.lean:90](HighamTridiagonal/Algorithm38.lean#L90) | |
 | §4, after Thm 4.2 | Column-dominant analogue: `‖\|U⁻¹\|\|L⁻¹\|y‖∞ ≤ (2n−1)θ‖\|A⁻¹\|y‖∞`, `θ = maxᵢ\|yᵢ\|/minᵢ\|yᵢ\|`, `y > 0` | `colDD_analogue` — [HighamTridiagonal/DiagDominant.lean:465](HighamTridiagonal/DiagDominant.lean#L465) | |
+| §4, after Thm 4.2 | For `n = 2` the bound of Thm 4.2 is attained as `α → ∞` for `A = [1 1; −α α+1]`, `y = e` | `theorem_4_2_sharp_n2` — [HighamTridiagonal/Example42.lean:118](HighamTridiagonal/Example42.lean#L118)<br>`exA` — [HighamTridiagonal/Example42.lean:21](HighamTridiagonal/Example42.lean#L21)<br>`exL` — [HighamTridiagonal/Example42.lean:24](HighamTridiagonal/Example42.lean#L24)<br>`exU` — [HighamTridiagonal/Example42.lean:27](HighamTridiagonal/Example42.lean#L27) | |
 | §4, after Thm 4.2 | The upper bound is exact for the matrices of Thm 3.1 (symmetric positive definite, totally nonnegative, M-matrix) | `bound_exact_of_type` — [HighamTridiagonal/Remarks.lean:157](HighamTridiagonal/Remarks.lean#L157) | |
 | §4, proof of Thm 4.1 | `\|eᵢ\| ≤ \|uᵢ\|` (rows); `\|cᵢ₊₁\| ≤ \|uᵢ\|` (columns); `\|lᵢeᵢ₋₁\|+\|uᵢ\| ≤ 3\|dᵢ\|` | `rowDD_abs_supd_le_abs_piv` — [HighamTridiagonal/DiagDominant.lean:143](HighamTridiagonal/DiagDominant.lean#L143)<br>`colDD_abs_sub_le_abs_piv` — [HighamTridiagonal/DiagDominant.lean:172](HighamTridiagonal/DiagDominant.lean#L172)<br>`diag_bound` — [HighamTridiagonal/DiagDominant.lean:204](HighamTridiagonal/DiagDominant.lean#L204) | |
 | §4 | Paper's definition of row diagonal dominance for tridiagonal `A` (`\|dᵢ\| ≥ \|cᵢ\|+\|eᵢ\|`) is equivalent to the general one used here | `isRowDiagDominant_iff_of_isTridiagonal` — [HighamTridiagonal/DiagDominant.lean:60](HighamTridiagonal/DiagDominant.lean#L60) | |
@@ -90,10 +91,9 @@ GitHub and in most Markdown viewers.
   and (1.3), namely (1.2), (1.4) and (1.5), are formalized as stand-alone implications.
 * **Table 6.1 and the experiment of §6** (the Dorr matrix, measured errors). This is numerical
   data, not a mathematical claim. Only the constant in (6.1) is checked: `constant_6_1` — [HighamTridiagonal/Remarks.lean:147](HighamTridiagonal/Remarks.lean#L147).
-* **Illustrative/practical remarks:** the `n = 2` example showing that Theorem 4.2 is sharp as
-  `α → ∞`, Neumaier's experiments, the remarks on LAPACK, SONEST, LDLᵀ/BABE factorizations and
-  flop counts, and the informal sentence in §4 that combining Theorem 4.1 with (2.7) gives a
-  small componentwise backward error.
+* **Practical remarks:** Neumaier's experiments, the remarks on LAPACK, SONEST, LDLᵀ/BABE
+  factorizations and flop counts, and the informal sentence in §4 that combining Theorem 4.1
+  with (2.7) gives a small componentwise backward error.
 
 ## 6. Notes on conventions and faithfulness
 

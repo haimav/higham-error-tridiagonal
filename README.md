@@ -43,3 +43,4 @@ lake env lean scripts/check_axioms.lean
 | `HighamTridiagonal/Condition.lean` | Skeel's condition numbers, (1.5) |
 | `HighamTridiagonal/Algorithm38.lean` | comparison matrices, (3.5), (3.8) |
 | `HighamTridiagonal/Remarks.lean` | (1.2), (1.4), (6.1) and other remarks |
+| `HighamTridiagonal/Example42.lean` | the `n = 2` example showing that Theorem 4.2 is sharp |
