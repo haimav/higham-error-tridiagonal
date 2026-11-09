@@ -48,3 +48,5 @@ lake env lean scripts/check_axioms.lean
 | `HighamTridiagonal/Example42.lean` | the `n = 2` example showing that Theorem 4.2 is sharp |
 | `HighamTridiagonal/OpCount38.lean` | (3.8) under the paper's hypothesis, and an explicit operation count (`23n − 16`) for computing `cond(A, x)` |
 | `HighamTridiagonal/DDRemarks.lean` | the remarks of §4: diagonally dominant matrices have an LU factorization; exactness of the bound for symmetric / nonnegative / M-matrices |
+| `HighamTridiagonal/Harrod.lean` | Harrod's M-matrix example of §3: unbounded multiplier, yet stable (Theorem 3.2) |
+| `HighamTridiagonal/CondRemarks.lean` | remarks of §§1, 3, 6 on `cond(A, x)`, `cond(A)`, `κ∞(A)` (computing `‖A⁻¹‖∞` by (3.8), unbounded ratio, row scaling) |

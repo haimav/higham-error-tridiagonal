@@ -13,3 +13,5 @@ import HighamTridiagonal.Remarks
 import HighamTridiagonal.Example42
 import HighamTridiagonal.OpCount38
 import HighamTridiagonal.DDRemarks
+import HighamTridiagonal.Harrod
+import HighamTridiagonal.CondRemarks
