@@ -6,9 +6,11 @@ A Lean 4 / Mathlib formalization of
 > SIAM J. Matrix Anal. Appl. 11(4) (1990), 521–530.
 
 All numbered theorems of the paper (Theorems 3.1, 3.2, 3.3, 4.1, 4.2) are formalized and
-proved. The same holds for the numbered equations that state mathematical claims, among them
-the floating point backward error analysis (2.5)–(2.7) and the `O(n)` condition number
-algorithm (3.8). There are no `sorry`s and no added axioms.
+proved, together with the numbered equations that state claims proved or derived in the paper,
+among them the floating point backward error analysis (2.5)–(2.7) and the `O(n)` condition
+number algorithm (3.8). The two exceptions, (1.1) and (1.3), are results about general dense
+matrices that the paper quotes from the literature without proof; see `mapping.md` §5. There
+are no `sorry`s and no added axioms.
 
 **See [`mapping.md`](mapping.md)** for the correspondence between the results of the paper and
 the Lean declarations, with clickable `file:line` links and notes on conventions.
