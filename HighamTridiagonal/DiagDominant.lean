@@ -289,12 +289,6 @@ lemma mulVec_nonneg_of_nonneg {M : Matrix (Fin n) (Fin n) ℝ} (hM : ∀ i j, 0 
   simp only [mulVec, dotProduct]
   exact Finset.sum_nonneg fun j _ => mul_nonneg (hM i j) (hv j)
 
-lemma abs_mul_le_abs_mul_abs (M N : Matrix (Fin n) (Fin n) ℝ) (i j : Fin n) :
-    |(M * N) i j| ≤ (M.map abs * N.map abs) i j := by
-  rw [mul_apply, mul_apply]
-  refine (Finset.abs_sum_le_sum_abs _ _).trans (le_of_eq ?_)
-  simp [abs_mul]
-
 lemma sum_ite_one_two (i : Fin n) :
     ∑ q : Fin n, (if q = i then (1 : ℝ) else 2) = 2 * n - 1 := by
   have : ∀ q : Fin n, (if q = i then (1 : ℝ) else 2) = 2 - (if q = i then 1 else 0) := by

@@ -518,4 +518,56 @@ theorem abs_mul_abs_eq_abs_mul_iff (l p e : ℕ → ℝ) :
     · intro i hi
       rw [ent_abs, ent_LU_sup _ _ _ hi, ent_LU_sup _ _ _ hi]
 
+/-! ### Matrix–vector products and entrywise absolute values -/
+
+/-- Extension of a vector by zero to all natural-number indices. -/
+def vext (x : Fin n → ℝ) (j : ℕ) : ℝ := if h : j < n then x ⟨j, h⟩ else 0
+
+lemma sum_range_congr_of_vanish {h : ℕ → ℝ} {N M : ℕ} (hN : ∀ j, N ≤ j → h j = 0)
+    (hM : ∀ j, M ≤ j → h j = 0) : ∑ j ∈ Finset.range N, h j = ∑ j ∈ Finset.range M, h j := by
+  rcases le_total N M with hNM | hNM
+  · rw [← Finset.sum_range_add_sum_Ico h hNM,
+      Finset.sum_eq_zero (s := Finset.Ico N M) (fun j hj => hN j (Finset.mem_Ico.mp hj).1),
+      add_zero]
+  · rw [← Finset.sum_range_add_sum_Ico h hNM,
+      Finset.sum_eq_zero (s := Finset.Ico M N) (fun j hj => hM j (Finset.mem_Ico.mp hj).1),
+      add_zero]
+
+/-- A row of `A x` for tridiagonal `A`, written with three terms. -/
+lemma mulVec_tridiag_succ {A : Matrix (Fin n) (Fin n) ℝ} (hT : IsTridiagonal A)
+    (x : Fin n → ℝ) {k : ℕ} (hk : k + 1 < n) :
+    (A *ᵥ x) ⟨k + 1, hk⟩ = ent A (k + 1) k * vext x k + ent A (k + 1) (k + 1) * vext x (k + 1) +
+      ent A (k + 1) (k + 2) * vext x (k + 2) := by
+  have hsum : (A *ᵥ x) ⟨k + 1, hk⟩ = ∑ j ∈ Finset.range n, ent A (k + 1) j * vext x j := by
+    rw [← Fin.sum_univ_eq_sum_range (fun j => ent A (k + 1) j * vext x j) n]
+    simp only [mulVec, dotProduct, vext]
+    refine Finset.sum_congr rfl fun j _ => ?_
+    rw [ent_of_lt A hk j.2, dite_eq_left j.2]
+  rw [hsum, sum_range_congr_of_vanish (M := k + 3)]
+  · rw [Finset.sum_range_succ, Finset.sum_range_succ, Finset.sum_range_succ,
+      Finset.sum_eq_zero (fun j hj => ?_)]
+    · ring
+    · rw [hT.ent_eq_zero (Or.inr (by simp at hj; omega)), zero_mul]
+  · intro j hj; simp [vext, show ¬ j < n by omega]
+  · intro j hj; rw [hT.ent_eq_zero (Or.inl (by omega)), zero_mul]
+
+lemma mulVec_tridiag_zero {A : Matrix (Fin n) (Fin n) ℝ} (hT : IsTridiagonal A)
+    (x : Fin n → ℝ) (hn : 0 < n) :
+    (A *ᵥ x) ⟨0, hn⟩ = ent A 0 0 * vext x 0 + ent A 0 1 * vext x 1 := by
+  have hsum : (A *ᵥ x) ⟨0, hn⟩ = ∑ j ∈ Finset.range n, ent A 0 j * vext x j := by
+    rw [← Fin.sum_univ_eq_sum_range (fun j => ent A 0 j * vext x j) n]
+    simp only [mulVec, dotProduct, vext]
+    refine Finset.sum_congr rfl fun j _ => ?_
+    rw [ent_of_lt A hn j.2, dite_eq_left j.2]
+  rw [hsum, sum_range_congr_of_vanish (M := 2)]
+  · simp [Finset.sum_range_succ]
+  · intro j hj; simp [vext, show ¬ j < n by omega]
+  · intro j hj; rw [hT.ent_eq_zero (Or.inl (by omega)), zero_mul]
+
+lemma abs_mul_le_abs_mul_abs (M N : Matrix (Fin n) (Fin n) ℝ) (i j : Fin n) :
+    |(M * N) i j| ≤ (M.map abs * N.map abs) i j := by
+  rw [mul_apply, mul_apply]
+  refine (Finset.abs_sum_le_sum_abs _ _).trans (le_of_eq ?_)
+  simp [abs_mul]
+
 end Higham
