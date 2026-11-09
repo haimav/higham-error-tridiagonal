@@ -279,16 +279,6 @@ theorem theorem_4_1 (A L U : Matrix (Fin n) (Fin n) ℝ) (hA : IsUnit A.det)
 
 /-! ### Theorem 4.2 -/
 
-lemma mulVec_mono_of_nonneg {M : Matrix (Fin n) (Fin n) ℝ} (hM : ∀ i j, 0 ≤ M i j)
-    {v w : Fin n → ℝ} (hvw : ∀ i, v i ≤ w i) (i : Fin n) : (M *ᵥ v) i ≤ (M *ᵥ w) i := by
-  simp only [mulVec, dotProduct]
-  exact Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_left (hvw j) (hM i j)
-
-lemma mulVec_nonneg_of_nonneg {M : Matrix (Fin n) (Fin n) ℝ} (hM : ∀ i j, 0 ≤ M i j)
-    {v : Fin n → ℝ} (hv : ∀ i, 0 ≤ v i) (i : Fin n) : 0 ≤ (M *ᵥ v) i := by
-  simp only [mulVec, dotProduct]
-  exact Finset.sum_nonneg fun j _ => mul_nonneg (hM i j) (hv j)
-
 lemma sum_ite_one_two (i : Fin n) :
     ∑ q : Fin n, (if q = i then (1 : ℝ) else 2) = 2 * n - 1 := by
   have : ∀ q : Fin n, (if q = i then (1 : ℝ) else 2) = 2 - (if q = i then 1 else 0) := by
@@ -411,5 +401,139 @@ theorem theorem_4_2 (A L U : Matrix (Fin n) (Fin n) ℝ) (hA : IsUnit A.det)
       hy i
   rw [Real.norm_eq_abs, abs_of_nonneg hnn]
   exact (hstep i).trans (hbound i)
+
+/-! ### The column diagonally dominant analogue of Theorem 4.2 (unnumbered, Section 4) -/
+
+/-- Column diagonal dominance gives `|l_{k+1}| ≤ 1`. -/
+lemma colDD_abs_mult_le_one {A : Matrix (Fin n) (Fin n) ℝ} (hT : IsTridiagonal A)
+    (hDD : IsColDiagDominant A) (hp : ∀ i, i < n → piv A i ≠ 0) {k : ℕ} (hk : k + 1 < n) :
+    |mult A (k + 1)| ≤ 1 := by
+  rw [mult_succ, abs_div, div_le_one (abs_pos.mpr (hp k (by omega)))]
+  exact colDD_abs_sub_le_abs_piv hT hDD hp k hk
+
+/-- Bound on `|L||L⁻¹|` for column diagonally dominant `A`. -/
+lemma abs_L_mul_abs_inv_L_le {A : Matrix (Fin n) (Fin n) ℝ} (hT : IsTridiagonal A)
+    (hDD : IsColDiagDominant A) (hp : ∀ i, i < n → piv A i ≠ 0) (i j : Fin n) :
+    ((lowerBidiag (n := n) (mult A)).map abs * (lowerBidiag (n := n) (mult A))⁻¹.map abs) i j ≤
+      if j = i then 1 else 2 := by
+  have hl : ∀ {k : ℕ}, k + 1 < n → |mult A (k + 1)| ≤ 1 := fun hk =>
+    colDD_abs_mult_le_one hT hDD hp hk
+  -- `|(L⁻¹)_{kj}| ≤ 1`
+  have hkey : ∀ k, |ent (lowerBidiag (n := n) (mult A))⁻¹ k j| ≤ 1 := by
+    intro k
+    rcases lt_or_ge k j with hkj | hkj
+    · rw [ent_inv_lowerBidiag_of_lt _ hkj]; simp
+    by_cases hk : k < n
+    · obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hkj
+      induction d with
+      | zero =>
+        simp only [add_zero] at hk ⊢
+        rw [ent_inv_lowerBidiag_diag _ hk]; simp
+      | succ d ih =>
+        rw [← add_assoc, ent_inv_lowerBidiag_succ _ (by omega) (by omega), abs_neg, abs_mul]
+        calc |mult A (j + d + 1)| * |ent (lowerBidiag (n := n) (mult A))⁻¹ (j + d) j|
+            ≤ 1 * 1 := mul_le_mul (hl (by omega)) (ih (by omega) (by omega)) (abs_nonneg _)
+              zero_le_one
+          _ = 1 := one_mul 1
+    · rw [ent_of_not_lt_left _ hk]; simp
+  rw [lowerBidiag_map_abs]
+  suffices h : ent (lowerBidiag (n := n) (fun i => |mult A i|) *
+      (lowerBidiag (n := n) (mult A))⁻¹.map abs) i j ≤ if j = i then 1 else 2 by
+    simpa using h
+  have hi := i.2
+  rcases Nat.eq_zero_or_pos (i : ℕ) with h0 | h0
+  · rw [h0, ent_lowerBidiag_mul_zero, ent_abs]
+    split_ifs
+    · exact hkey 0
+    · exact (hkey 0).trans (by norm_num)
+  · obtain ⟨k, hk⟩ := Nat.exists_eq_add_of_lt h0
+    simp only [zero_add] at hk
+    rw [hk, ent_lowerBidiag_mul_succ _ _ (by omega) j.2, ent_abs, ent_abs]
+    have h1 : |mult A (k + 1)| * |ent (lowerBidiag (n := n) (mult A))⁻¹ k j| ≤ 1 :=
+      (mul_le_mul (hl (by omega)) (hkey k) (abs_nonneg _) zero_le_one).trans (by norm_num)
+    split_ifs with hji
+    · have : k < j := by
+        have : (j : ℕ) = i := by rw [hji]
+        omega
+      rw [ent_inv_lowerBidiag_of_lt _ this, abs_zero, mul_zero, zero_add]
+      exact hkey (k + 1)
+    · linarith [hkey (k + 1)]
+
+/-- The (unnumbered) column-dominant analogue of Theorem 4.2 stated in Section 4: if `A` is
+nonsingular, tridiagonal and diagonally dominant by columns with `A = LU`, then for `y > 0`,
+`‖ |U⁻¹||L⁻¹| y ‖_∞ ≤ (2n - 1) θ ‖ |A⁻¹| y ‖_∞` with `θ = max_i |y_i| / min_i |y_i|`. -/
+theorem colDD_analogue (A L U : Matrix (Fin n) (Fin n) ℝ) (hA : IsUnit A.det)
+    (hT : IsTridiagonal A) (hDD : IsColDiagDominant A) (hLU : IsLU A L U)
+    (y : Fin n → ℝ) (hy : ∀ i, 0 < y i) :
+    ‖(U⁻¹.map abs * L⁻¹.map abs) *ᵥ y‖ ≤
+      (2 * n - 1) * ((⨆ i, |y i|) / (⨅ i, |y i|)) * ‖A⁻¹.map abs *ᵥ y‖ := by
+  rcases Nat.eq_zero_or_pos n with hn | hn
+  · subst hn
+    rw [Subsingleton.elim ((U⁻¹.map abs * L⁻¹.map abs) *ᵥ y) 0, norm_zero]
+    rw [Subsingleton.elim (A⁻¹.map abs *ᵥ y) 0, norm_zero, mul_zero]
+  have : Nonempty (Fin n) := ⟨⟨0, hn⟩⟩
+  obtain ⟨hp, hL, hU⟩ := hLU.eq_recurrence hA hT
+  set ymax := ⨆ i, |y i| with hymax
+  set ymin := ⨅ i, |y i| with hymin
+  have hle_max : ∀ i, y i ≤ ymax := fun i =>
+    (le_abs_self _).trans (le_ciSup (f := fun i => |y i|) (Finite.bddAbove_range _) i)
+  have hmin_le : ∀ i, ymin ≤ y i := fun i => by
+    have := ciInf_le (Finite.bddBelow_range (fun i => |y i|)) i
+    rwa [abs_of_pos (hy i)] at this
+  have hmin_pos : 0 < ymin := by
+    obtain ⟨i₀, hi₀⟩ := exists_eq_ciInf_of_finite (f := fun i => |y i|)
+    rw [hymin, ← hi₀]; exact abs_pos.mpr (hy i₀).ne'
+  have hn1 : (1 : ℝ) ≤ n := by exact_mod_cast hn
+  set c := (2 * (n : ℝ) - 1) * (ymax / ymin) with hc
+  have hmax_pos : 0 < ymax := (hy ⟨0, hn⟩).trans_le (hle_max _)
+  have hc0 : 0 ≤ c := mul_nonneg (by linarith) (div_nonneg hmax_pos.le hmin_pos.le)
+  -- `U⁻¹ = A⁻¹ L`
+  have hUinv : U⁻¹ = A⁻¹ * L := by
+    rw [hLU.eq, Matrix.mul_inv_rev, Matrix.mul_assoc, nonsing_inv_mul _ hLU.isUnit_det_L,
+      Matrix.mul_one]
+  -- `|L||L⁻¹| y ≤ c y`
+  have hW : ∀ i, ((L.map abs * L⁻¹.map abs) *ᵥ y) i ≤ c * y i := by
+    intro i
+    have hWi := abs_L_mul_abs_inv_L_le hT hDD hp i
+    rw [← hL] at hWi
+    calc ((L.map abs * L⁻¹.map abs) *ᵥ y) i = ∑ j, (L.map abs * L⁻¹.map abs) i j * y j := rfl
+      _ ≤ ∑ j : Fin n, (if j = i then (1 : ℝ) else 2) * ymax := by
+          refine Finset.sum_le_sum fun j _ => ?_
+          have hnn : 0 ≤ (L.map abs * L⁻¹.map abs) i j := by
+            rw [mul_apply]
+            exact Finset.sum_nonneg fun _ _ => mul_nonneg (abs_nonneg _) (abs_nonneg _)
+          calc (L.map abs * L⁻¹.map abs) i j * y j ≤ (L.map abs * L⁻¹.map abs) i j * ymax :=
+                mul_le_mul_of_nonneg_left (hle_max j) hnn
+            _ ≤ (if j = i then (1 : ℝ) else 2) * ymax :=
+                mul_le_mul_of_nonneg_right (hWi j) ((hy j).le.trans (hle_max j))
+      _ = (2 * n - 1) * ymax := by rw [← Finset.sum_mul, sum_ite_one_two]
+      _ = c * ymin := by rw [hc]; field_simp
+      _ ≤ c * y i := mul_le_mul_of_nonneg_left (hmin_le i) hc0
+  -- `|U⁻¹||L⁻¹| y ≤ |A⁻¹| (|L||L⁻¹| y) ≤ c |A⁻¹| y`
+  have hstep : ∀ i, ((U⁻¹.map abs * L⁻¹.map abs) *ᵥ y) i ≤ c * (A⁻¹.map abs *ᵥ y) i := by
+    intro i
+    have h1 : ∀ i k, U⁻¹.map abs i k ≤ (A⁻¹.map abs * L.map abs) i k := fun i k => by
+      rw [map_apply, hUinv]; exact abs_mul_le_abs_mul_abs _ _ i k
+    calc ((U⁻¹.map abs * L⁻¹.map abs) *ᵥ y) i
+        = (U⁻¹.map abs *ᵥ (L⁻¹.map abs *ᵥ y)) i := by rw [mulVec_mulVec]
+      _ ≤ ((A⁻¹.map abs * L.map abs) *ᵥ (L⁻¹.map abs *ᵥ y)) i := by
+          simp only [mulVec, dotProduct]
+          refine Finset.sum_le_sum fun k _ => mul_le_mul_of_nonneg_right (h1 i k) ?_
+          exact mulVec_nonneg_of_nonneg (fun _ _ => abs_nonneg _) (fun j => (hy j).le) k
+      _ = (A⁻¹.map abs *ᵥ ((L.map abs * L⁻¹.map abs) *ᵥ y)) i := by
+          rw [mulVec_mulVec, mulVec_mulVec, Matrix.mul_assoc]
+      _ ≤ (A⁻¹.map abs *ᵥ (c • y)) i := mulVec_mono_of_nonneg (fun _ _ => abs_nonneg _)
+          (fun k => by simpa using hW k) i
+      _ = c * (A⁻¹.map abs *ᵥ y) i := by rw [mulVec_smul]; rfl
+  refine (pi_norm_le_iff_of_nonneg (mul_nonneg hc0 (norm_nonneg _))).mpr fun i => ?_
+  have hnn : 0 ≤ ((U⁻¹.map abs * L⁻¹.map abs) *ᵥ y) i :=
+    mulVec_nonneg_of_nonneg (fun a b => by
+      rw [mul_apply]; exact Finset.sum_nonneg fun _ _ => mul_nonneg (abs_nonneg _) (abs_nonneg _))
+      (fun j => (hy j).le) i
+  rw [Real.norm_eq_abs, abs_of_nonneg hnn]
+  refine (hstep i).trans (mul_le_mul_of_nonneg_left ?_ hc0)
+  have := norm_le_pi_norm (A⁻¹.map abs *ᵥ y) i
+  rw [Real.norm_eq_abs] at this
+  exact (le_abs_self _).trans this
 
 end Higham

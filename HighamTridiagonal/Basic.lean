@@ -570,4 +570,21 @@ lemma abs_mul_le_abs_mul_abs (M N : Matrix (Fin n) (Fin n) ℝ) (i j : Fin n) :
   refine (Finset.abs_sum_le_sum_abs _ _).trans (le_of_eq ?_)
   simp [abs_mul]
 
+lemma mulVec_mono_of_nonneg {M : Matrix (Fin n) (Fin n) ℝ} (hM : ∀ i j, 0 ≤ M i j)
+    {v w : Fin n → ℝ} (hvw : ∀ i, v i ≤ w i) (i : Fin n) : (M *ᵥ v) i ≤ (M *ᵥ w) i := by
+  simp only [mulVec, dotProduct]
+  exact Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_left (hvw j) (hM i j)
+
+lemma mulVec_nonneg_of_nonneg {M : Matrix (Fin n) (Fin n) ℝ} (hM : ∀ i j, 0 ≤ M i j)
+    {v : Fin n → ℝ} (hv : ∀ i, 0 ≤ v i) (i : Fin n) : 0 ≤ (M *ᵥ v) i := by
+  simp only [mulVec, dotProduct]
+  exact Finset.sum_nonneg fun j _ => mul_nonneg (hM i j) (hv j)
+
+/-- `|M v| ≤ |M| |v|` entrywise. -/
+lemma abs_mulVec_le (M : Matrix (Fin n) (Fin n) ℝ) (v : Fin n → ℝ) (i : Fin n) :
+    |(M *ᵥ v) i| ≤ (M.map abs *ᵥ fun j => |v j|) i := by
+  simp only [mulVec, dotProduct, map_apply]
+  refine (Finset.abs_sum_le_sum_abs _ _).trans (le_of_eq ?_)
+  simp [abs_mul]
+
 end Higham

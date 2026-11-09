@@ -146,15 +146,15 @@ lemma vext_solve (b : Fin n → ℝ) (i : ℕ) :
   unfold vext solve
   split_ifs <;> rfl
 
+end FPModel
+
+open FPModel
+
 /-! ### General bidiagonal matrices -/
 
 /-- Lower bidiagonal matrix with diagonal `D` and subdiagonal `l`. -/
 def lowerBidiagG (D l : ℕ → ℝ) : Matrix (Fin n) (Fin n) ℝ :=
   Matrix.of fun i j => if (i : ℕ) = j then D i else if (i : ℕ) = j + 1 then l i else 0
-
-end FPModel
-
-open FPModel
 
 lemma lowerBidiagG_isTridiagonal (D l : ℕ → ℝ) : IsTridiagonal (lowerBidiagG (n := n) D l) := by
   intro i j h
@@ -454,6 +454,27 @@ theorem eq_3_3 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.Succeeds A)
       _ ≤ _ := by linarith
   rw [one_div, ← div_eq_inv_mul, le_div_iff₀ hpos]
   linarith
+
+/-! ### (3.2) implies (3.1) -/
+
+/-- **(3.2) ⟹ (3.1)** (Section 3): if the computed factors satisfy `|L̂||Û| = |L̂ Û|`, then the
+computed solution satisfies `(A + F) x̂ = b` with the "ideal" bound `|F| ≤ g(u) |A|`, where
+`g(u) = (4u + 3u² + u³) / (1 - u)`. -/
+theorem eq_3_1_of_eq_3_2 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.Succeeds A)
+    (habs : (fp.Lhat A).map abs * (fp.Uhat A).map abs = (fp.Lhat A * fp.Uhat A).map abs)
+    (b : Fin n → ℝ) :
+    ∃ F : Matrix (Fin n) (Fin n) ℝ, (A + F) *ᵥ fp.solve A b = b ∧
+      ∀ i j, |F i j| ≤ (4 * u + 3 * u ^ 2 + u ^ 3) / (1 - u) * |A i j| := by
+  have hu0 := fp.u_nonneg
+  obtain ⟨F, hF, hFb⟩ := fp.eq_2_7 A hu hT hs b
+  have h33 := fp.eq_3_3 A hu hT hs habs
+  refine ⟨F, hF, fun i j => ?_⟩
+  have hf : 0 ≤ 4 * u + 3 * u ^ 2 + u ^ 3 := by positivity
+  calc |F i j| ≤ (4 * u + 3 * u ^ 2 + u ^ 3) *
+        ((fp.Lhat A).map abs * (fp.Uhat A).map abs) i j := hFb i j
+    _ ≤ (4 * u + 3 * u ^ 2 + u ^ 3) * (1 / (1 - u) * |A i j|) :=
+        mul_le_mul_of_nonneg_left (h33 i j) hf
+    _ = (4 * u + 3 * u ^ 2 + u ^ 3) / (1 - u) * |A i j| := by ring
 
 end FPModel
 

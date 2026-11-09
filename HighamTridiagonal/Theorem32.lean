@@ -168,18 +168,9 @@ theorem theorem_3_2 (A : Matrix (Fin n) (Fin n) ℝ) (hA : IsUnit A.det) (hT : I
     exact lt_of_lt_of_le hu (min_le_left _ _)
   obtain ⟨hsucc, hsign⟩ := hgood huε ⟨u, fp⟩ rfl
   refine ⟨hsucc, ?_⟩
-  -- `|L̂||Û| = |L̂ Û|`
+  -- `|L̂||Û| = |L̂ Û|`, and then (2.7) and (3.3)
   have habs' : (fp.Lhat A).map abs * (fp.Uhat A).map abs = (fp.Lhat A * fp.Uhat A).map abs :=
     (abs_mul_abs_eq_abs_mul_iff _ _ _).mpr hsign
-  -- (2.7) and (3.3)
-  obtain ⟨F, hF, hFb⟩ := fp.eq_2_7 A hu1 hT hsucc b
-  have h33 := fp.eq_3_3 A hu1 hT hsucc habs'
-  refine ⟨F, hF, fun i j => ?_⟩
-  have hf : 0 ≤ 4 * u + 3 * u ^ 2 + u ^ 3 := by positivity
-  calc |F i j| ≤ (4 * u + 3 * u ^ 2 + u ^ 3) *
-        ((fp.Lhat A).map abs * (fp.Uhat A).map abs) i j := hFb i j
-    _ ≤ (4 * u + 3 * u ^ 2 + u ^ 3) * (1 / (1 - u) * |A i j|) :=
-        mul_le_mul_of_nonneg_left (h33 i j) hf
-    _ = (4 * u + 3 * u ^ 2 + u ^ 3) / (1 - u) * |A i j| := by ring
+  exact fp.eq_3_1_of_eq_3_2 A hu1 hT hsucc habs' b
 
 end Higham

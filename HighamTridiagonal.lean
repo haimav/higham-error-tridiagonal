@@ -3,7 +3,10 @@ import HighamTridiagonal.Inverse
 import HighamTridiagonal.Determinant
 import HighamTridiagonal.TotallyNonneg
 import HighamTridiagonal.FloatingPoint
+import HighamTridiagonal.Condition
 import HighamTridiagonal.Theorem31
 import HighamTridiagonal.Theorem32
 import HighamTridiagonal.Theorem33
 import HighamTridiagonal.DiagDominant
+import HighamTridiagonal.Algorithm38
+import HighamTridiagonal.Remarks
