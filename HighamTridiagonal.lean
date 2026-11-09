@@ -1,4 +1,7 @@
 import HighamTridiagonal.Basic
 import HighamTridiagonal.Inverse
+import HighamTridiagonal.Determinant
+import HighamTridiagonal.TotallyNonneg
+import HighamTridiagonal.Theorem31
 import HighamTridiagonal.Theorem33
 import HighamTridiagonal.DiagDominant

@@ -169,4 +169,38 @@ theorem ent_inv_lowerBidiag_eq_prod {i j : ℕ} (hji : j ≤ i) (hi : i < n) :
 
 end LowerInverse
 
+/-! ### Sign patterns of the inverses -/
+
+/-- If `u_i > 0` and `e_i ≤ 0` then `U⁻¹ ≥ 0`. -/
+lemma ent_inv_upperBidiag_nonneg {p e : ℕ → ℝ} (hp : ∀ i, i < n → 0 < p i)
+    (he : ∀ i, i + 1 < n → e i ≤ 0) (i j : ℕ) : 0 ≤ ent (upperBidiag (n := n) p e)⁻¹ i j := by
+  have hp' : ∀ i, i < n → p i ≠ 0 := fun i hi => (hp i hi).ne'
+  rcases lt_or_ge j i with hji | hij
+  · rw [ent_inv_upperBidiag_of_lt e hp' hji]
+  by_cases hj : j < n
+  · obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hij
+    induction d with
+    | zero => rw [add_zero, ent_inv_upperBidiag_diag e hp' (by omega)]; exact (inv_pos.mpr (hp i (by omega))).le
+    | succ d ih =>
+      rw [← add_assoc, ent_inv_upperBidiag_succ e hp' (by omega) (by omega)]
+      apply div_nonneg _ (hp _ (by omega)).le
+      have := mul_nonpos_of_nonneg_of_nonpos (ih (by omega) (by omega)) (he (i + d) (by omega))
+      linarith
+  · rw [ent_of_not_lt_right _ hj]
+
+/-- If `l_i ≤ 0` then `L⁻¹ ≥ 0`. -/
+lemma ent_inv_lowerBidiag_nonneg {l : ℕ → ℝ} (hl : ∀ i, i + 1 < n → l (i + 1) ≤ 0) (i j : ℕ) :
+    0 ≤ ent (lowerBidiag (n := n) l)⁻¹ i j := by
+  rcases lt_or_ge i j with hij | hji
+  · rw [ent_inv_lowerBidiag_of_lt l hij]
+  by_cases hi : i < n
+  · obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le hji
+    induction d with
+    | zero => rw [add_zero, ent_inv_lowerBidiag_diag l (by omega)]; exact zero_le_one
+    | succ d ih =>
+      rw [← add_assoc, ent_inv_lowerBidiag_succ l (by omega) (by omega)]
+      have := mul_nonpos_of_nonpos_of_nonneg (hl (j + d) (by omega)) (ih (by omega) (by omega))
+      linarith
+  · rw [ent_of_not_lt_left _ hi]
+
 end Higham
