@@ -168,4 +168,10 @@ theorem bound_exact_of_type (A L U : Matrix (Fin n) (Fin n) ℝ) (hA : IsUnit A.
     rw [hL, hU, ← hL', ← hU', habs', ← hLU'.eq]
   rw [theorem_3_3 A L U hA hT hLU habs]
 
+/-- §6: for any LU factorization `|A| ≤ |L||U|`; hence `|A| = |L||U|` for the matrices of
+Theorem 3.1 and `|A| ≤ |L||U| ≤ 3|A|` for those of Theorem 4.1. -/
+theorem abs_le_abs_mul_abs_of_isLU {A L U : Matrix (Fin n) (Fin n) ℝ} (hLU : IsLU A L U)
+    (i j : Fin n) : |A i j| ≤ (L.map abs * U.map abs) i j := by
+  rw [hLU.eq]; exact abs_mul_le_abs_mul_abs L U i j
+
 end Higham

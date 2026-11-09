@@ -61,6 +61,7 @@ GitHub and in most Markdown viewers.
 | §4 | Paper's definition of row diagonal dominance for tridiagonal `A` (`\|dᵢ\| ≥ \|cᵢ\|+\|eᵢ\|`) is equivalent to the general one used here | `isRowDiagDominant_iff_of_isTridiagonal` — [HighamTridiagonal/DiagDominant.lean:60](HighamTridiagonal/DiagDominant.lean#L60) | |
 | §1 | `cond(A,x) ≤ κ∞(A)`; `cond(A,x)` is invariant under row scaling | `condSkeel_le_kappa` — [HighamTridiagonal/Remarks.lean:70](HighamTridiagonal/Remarks.lean#L70)<br>`condSkeel_diagonal_mul` — [HighamTridiagonal/Remarks.lean:90](HighamTridiagonal/Remarks.lean#L90) | |
 | §6 | `cond(A) = cond(A,e) ≥ cond(A,x)` | `condSkeel_le_condSkeelA` — [HighamTridiagonal/Condition.lean:64](HighamTridiagonal/Condition.lean#L64) | |
+| §6 | `\|A\| ≤ \|L\|\|U\|` for any LU factorization (so `\|A\| ≤ \|L\|\|U\| ≤ 3\|A\|` under Thm 4.1) | `abs_le_abs_mul_abs_of_isLU` — [HighamTridiagonal/Remarks.lean:173](HighamTridiagonal/Remarks.lean#L173) | |
 | §2 (implicit) | The LU factorization of a nonsingular tridiagonal matrix is unique | `IsLU.unique` — [HighamTridiagonal/Theorem31.lean:418](HighamTridiagonal/Theorem31.lean#L418) | |
 
 ## 4. Definitions used in the statements

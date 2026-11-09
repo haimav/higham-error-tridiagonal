@@ -83,6 +83,7 @@ Run with `lake env lean scripts/check_axioms.lean`. Expected output for each the
 #print axioms Higham.condSkeel_le_kappa
 #print axioms Higham.condSkeel_diagonal_mul
 #print axioms Higham.condSkeel_le_condSkeelA
+#print axioms Higham.abs_le_abs_mul_abs_of_isLU
 #print axioms Higham.IsLU.unique
 #print axioms Higham.IsTotallyNonneg
 #print axioms Higham.IsMMatrix
