@@ -46,3 +46,5 @@ lake env lean scripts/check_axioms.lean
 | `HighamTridiagonal/Algorithm38.lean` | comparison matrices, (3.5), (3.8) |
 | `HighamTridiagonal/Remarks.lean` | (1.2), (1.4), (6.1) and other remarks |
 | `HighamTridiagonal/Example42.lean` | the `n = 2` example showing that Theorem 4.2 is sharp |
+| `HighamTridiagonal/OpCount38.lean` | (3.8) under the paper's hypothesis, and an explicit operation count (`23n − 16`) for computing `cond(A, x)` |
+| `HighamTridiagonal/DDRemarks.lean` | the remarks of §4: diagonally dominant matrices have an LU factorization; exactness of the bound for symmetric / nonnegative / M-matrices |

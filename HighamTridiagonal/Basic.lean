@@ -11,7 +11,8 @@ This file sets up the objects used throughout the formalization of
 We work with real `n × n` matrices `Matrix (Fin n) (Fin n) ℝ`.  Indices are `0`-based (the
 paper is `1`-based).  In the paper's notation (2.1) a tridiagonal matrix has subdiagonal
 `c_i = a_{i,i-1}`, diagonal `d_i = a_{ii}` and superdiagonal `e_i = a_{i,i+1}`; with `0`-based
-natural-number indices these are `ent A (i+1) i`, `ent A i i` and `ent A i (i+1)`.
+natural-number indices these are `c_{i+1} = ent A (i+1) i`, `d_i = ent A i i` and
+`e_i = ent A i (i+1)`.
 
 Main definitions:
 * `Higham.IsTridiagonal A`

@@ -109,6 +109,13 @@ lemma piv_succ (i : ℕ) :
 division by zero occurs, neither in the factorization nor in the back substitution). -/
 def Succeeds : Prop := ∀ i, i < n → fp.piv A i ≠ 0
 
+/-- The computed LU factorization exists: the pivots `û_0, …, û_{n-2}` used as divisors in (2.3)
+are nonzero (`û_{n-1}` is only needed later, in the back substitution). -/
+def FactorSucceeds : Prop := ∀ i, i + 1 < n → fp.piv A i ≠ 0
+
+lemma Succeeds.factorSucceeds {fp : FPModel u} {A : Matrix (Fin n) (Fin n) ℝ} (h : fp.Succeeds A) :
+    fp.FactorSucceeds A := fun i hi => h i (by omega)
+
 /-- The computed factor `L̂` (unit lower bidiagonal). -/
 def Lhat : Matrix (Fin n) (Fin n) ℝ := lowerBidiag (fp.mult A)
 
@@ -233,8 +240,9 @@ variable {u : ℝ} (fp : FPModel u) (A : Matrix (Fin n) (Fin n) ℝ)
 
 /-! ### Equation (2.5) -/
 
-/-- **(2.5)** `A = L̂ Û + E` with `|E| ≤ u |L̂||Û|`. -/
-theorem eq_2_5 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.Succeeds A) :
+/-- **(2.5)** `A = L̂ Û + E` with `|E| ≤ u |L̂||Û|` (whenever the computed LU factorization
+exists). -/
+theorem eq_2_5 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.FactorSucceeds A) :
     ∃ E : Matrix (Fin n) (Fin n) ℝ, A = fp.Lhat A * fp.Uhat A + E ∧
       ∀ i j, |E i j| ≤ u * ((fp.Lhat A).map abs * (fp.Uhat A).map abs) i j := by
   refine ⟨A - fp.Lhat A * fp.Uhat A, by abel, fun i j => ?_⟩
@@ -258,7 +266,7 @@ theorem eq_2_5 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.Succeeds A) :
     simp
   · -- subdiagonal: `c_i - l̂_i û_{i-1} = ε l̂_i û_{i-1}`
     rw [← h', ent_LU_sub _ _ _ (by omega), ent_LU_sub _ _ _ (by omega)]
-    obtain ⟨ε, hε, heq⟩ := fp.div_b' hu (ent A (j + 1) j) (hs j hj)
+    obtain ⟨ε, hε, heq⟩ := fp.div_b' hu (ent A (j + 1) j) (hs j (by omega))
     have : ent A (j + 1) j - fp.mult A (j + 1) * fp.piv A j =
         ε * (fp.mult A (j + 1) * fp.piv A j) := by
       rw [← heq]; simp only [mult]; ring
@@ -400,7 +408,7 @@ theorem eq_2_7 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.Succeeds A) (b : Fin
       ∀ i j, |F i j| ≤ (4 * u + 3 * u ^ 2 + u ^ 3) *
         ((fp.Lhat A).map abs * (fp.Uhat A).map abs) i j := by
   have hu0 := fp.u_nonneg
-  obtain ⟨E, hAE, hE⟩ := fp.eq_2_5 A hu hT hs
+  obtain ⟨E, hAE, hE⟩ := fp.eq_2_5 A hu hT hs.factorSucceeds
   obtain ⟨ΔL, ΔU, hsol, hΔL, hΔU⟩ := fp.eq_2_6 A hu hs b
   refine ⟨(fp.Lhat A + ΔL) * (fp.Uhat A + ΔU) - A, by rw [add_sub_cancel]; exact hsol, ?_⟩
   intro i j
@@ -434,7 +442,7 @@ theorem eq_2_7 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.Succeeds A) (b : Fin
 /-! ### Equation (3.3) -/
 
 /-- **(3.3)** If `|L̂||Û| = |L̂ Û|` then `|L̂||Û| ≤ |A| / (1 - u)`. -/
-theorem eq_3_3 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.Succeeds A)
+theorem eq_3_3 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.FactorSucceeds A)
     (habs : (fp.Lhat A).map abs * (fp.Uhat A).map abs = (fp.Lhat A * fp.Uhat A).map abs) :
     ∀ i j, ((fp.Lhat A).map abs * (fp.Uhat A).map abs) i j ≤ 1 / (1 - u) * |A i j| := by
   obtain ⟨E, hAE, hE⟩ := fp.eq_2_5 A hu hT hs
@@ -467,7 +475,7 @@ theorem eq_3_1_of_eq_3_2 (hu : u < 1) (hT : IsTridiagonal A) (hs : fp.Succeeds A
       ∀ i j, |F i j| ≤ (4 * u + 3 * u ^ 2 + u ^ 3) / (1 - u) * |A i j| := by
   have hu0 := fp.u_nonneg
   obtain ⟨F, hF, hFb⟩ := fp.eq_2_7 A hu hT hs b
-  have h33 := fp.eq_3_3 A hu hT hs habs
+  have h33 := fp.eq_3_3 A hu hT hs.factorSucceeds habs
   refine ⟨F, hF, fun i j => ?_⟩
   have hf : 0 ≤ 4 * u + 3 * u ^ 2 + u ^ 3 := by positivity
   calc |F i j| ≤ (4 * u + 3 * u ^ 2 + u ^ 3) *

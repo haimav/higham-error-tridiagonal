@@ -11,3 +11,5 @@ import HighamTridiagonal.DiagDominant
 import HighamTridiagonal.Algorithm38
 import HighamTridiagonal.Remarks
 import HighamTridiagonal.Example42
+import HighamTridiagonal.OpCount38
+import HighamTridiagonal.DDRemarks
